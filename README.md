@@ -131,9 +131,25 @@ The API is served locally at `http://localhost:3000`.
 
 ---
 
-## Future Improvements / Bonus Features
-- Adding API Swagger documentation.
-- Pagination & search filters.
-- Global Exception Handler Filters.
-- Refresh Tokens.
-- Unit and integration tests.
+## Completed Bonus Features
+Consistent with the requirements, we implemented these advanced features:
+- **Swagger Documentation**: Live interactive endpoints console served under `/api/docs`.
+- **Pagination & Search**: Skip/take querying with metadata return response, text searching, and date-range filters.
+- **Global Exception Filter**: Automatic mapping of database constraint errors to user-friendly HTTP client codes (409/404).
+- **Unit Testing**: Jest mock test suite covering creation rules, double-booking prevention, and state transition logic.
+- **Docker Support**: Containerized PostgreSQL setup for immediate configuration.
+
+---
+
+## Assumptions Made
+1. **Double Booking Isolation**: Overlapping check holds active only when comparing slots where the status is not `CANCELLED`.
+2. **Access Control**: Users registering are treated as administrative entities that manage services. Customer bookings are public.
+3. **JWT Validity**: Since refresh token rotation is an optional item, simple JWT expiration is utilized without a Redis blacklist or DB token store.
+
+---
+
+## Future Improvements
+- **Refresh Token Rotation**: Implement standard token reissue.
+- **Role-based Authentication**: Implement distinct employee (Operator, Advisor) vs. Admin roles.
+- **Slots Scheduler**: Integrate calendar library for dynamic slot validation instead of raw hour/minute checks.
+
