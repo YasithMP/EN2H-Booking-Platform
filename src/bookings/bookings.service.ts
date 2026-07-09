@@ -2,7 +2,8 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
-import { BookingStatus } from '@prisma/client';
+import { GetBookingsQueryDto } from './dto/get-bookings-query.dto';
+import { BookingStatus, Prisma } from '@prisma/client';
 
 @Injectable()
 export class BookingsService {
@@ -66,15 +67,63 @@ export class BookingsService {
         });
     }
 
-    async findAll() {
-        return this.prisma.booking.findMany({
-            include: {
-                service: true,
+    async findAll(query: GetBookingsQueryDto) {
+        const { page = 1, limit = 10, search, status, serviceId, startDate, endDate } = query;
+        const skip = (page - 1) * limit;
+
+        const where: Prisma.BookingWhereInput = {};
+
+        if (status) {
+            where.status = status;
+        }
+
+        if (serviceId) {
+            where.serviceId = serviceId;
+        }
+
+        if (startDate || endDate) {
+            where.bookingDate = {};
+            if (startDate) {
+                where.bookingDate.gte = startDate;
+            }
+            if (endDate) {
+                where.bookingDate.lte = endDate;
+            }
+        }
+
+        if (search) {
+            where.OR = [
+                { customerName: { contains: search, mode: 'insensitive' } },
+                { customerEmail: { contains: search, mode: 'insensitive' } },
+                { customerPhone: { contains: search, mode: 'insensitive' } },
+            ];
+        }
+
+        const [data, totalItems] = await Promise.all([
+            this.prisma.booking.findMany({
+                where,
+                skip,
+                take: limit,
+                include: {
+                    service: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                },
+            }),
+            this.prisma.booking.count({ where }),
+        ]);
+
+        return {
+            data,
+            meta: {
+                totalItems,
+                itemCount: data.length,
+                itemsPerPage: limit,
+                totalPages: Math.ceil(totalItems / limit),
+                currentPage: page,
             },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+        };
     }
 
     async findOne(id: number) {
