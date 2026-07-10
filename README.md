@@ -1,6 +1,6 @@
-# EH2H Booking Platform REST API
+# EN2H Booking Platform REST API
 
-Welcome to the **EH2H Booking Platform REST API**! This backend service is built using the **NestJS** framework, **TypeScript**, **Prisma ORM**, and **PostgreSQL** (running containerized via Docker). 
+Welcome to the **EN2H Booking Platform REST API**! This backend service is built using the **NestJS** framework, **TypeScript**, **Prisma ORM**, and **PostgreSQL** (running containerized via Docker). 
 
 This platform allows managing services (e.g., medical consultation, sessions) and customer bookings.
 
